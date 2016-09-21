@@ -1,19 +1,24 @@
 elasticsearch:
-  image: elasticsearch:latest
+  build: elasticsearch/
   command: elasticsearch -Des.network.host=0.0.0.0
   ports:
     - "9200:9200"
     - "9300:9300"
+  volumes:
+    - elk_data:/usr/share/elasticsearch/data
 
 logstash:
   build: logstash/
-  command: logstash -f /etc/logstash/conf.d/logstash.conf
+  command: logstash -f /etc/logstash/conf.d/logstash.conf --auto-reload
   volumes:
     - ./logstash/config:/etc/logstash/conf.d
   ports:
     - "5000:5000"
+    - "514:5514/tcp"
+    - "514:5514/udp"
   links:
     - elasticsearch
+
 kibana:
   build: kibana/
   volumes:
